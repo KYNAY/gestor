@@ -1,0 +1,82 @@
+generator client { provider = "prisma-client-js" }
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Manager {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String?
+  campaigns Campaign[]
+  parameters Parameter?
+  createdAt DateTime  @default(now())
+}
+
+model Campaign {
+  id          Int       @id @default(autoincrement())
+  manager     Manager   @relation(fields: [managerId], references: [id])
+  managerId   Int
+  name        String
+  startDate   DateTime?
+  endDate     DateTime?
+  investment  Float
+  revenue     Float
+  payments    Payment[]
+  sales       Sale[]
+  sensitivity Sensitivity[]
+  createdAt   DateTime  @default(now())
+}
+
+model Parameter {
+  id                  Int     @id @default(autoincrement())
+  manager             Manager @relation(fields: [managerId], references: [id])
+  managerId           Int
+  pctProfitManager    Float
+  pctProfitAgency     Float
+  pctLossManager      Float
+  pctLossAgency       Float
+  taxRate             Float   @default(0)
+  createdAt           DateTime @default(now())
+}
+
+model Payment {
+  id           Int      @id @default(autoincrement())
+  campaign     Campaign @relation(fields: [campaignId], references: [id])
+  campaignId   Int
+  managerAmount Float
+  agencyAmount  Float
+  profit       Float
+  roi          Float
+  multiplier   Float
+  createdAt    DateTime @default(now())
+}
+
+model Sale {
+  id         Int      @id @default(autoincrement())
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId Int
+  saleCount  Int
+  createdAt  DateTime @default(now())
+}
+
+model Sensitivity {
+  id                Int      @id @default(autoincrement())
+  campaign          Campaign @relation(fields: [campaignId], references: [id])
+  campaignId        Int
+  variationPercent  Float
+  simulatedRevenue  Float
+  simulatedProfit   Float
+  managerAmount     Float
+  agencyAmount      Float
+  createdAt         DateTime @default(now())
+}
+
+model ThemeSetting {
+  id         Int      @id @default(autoincrement())
+  manager    Manager  @relation(fields: [managerId], references: [id])
+  managerId  Int
+  theme      String   @default("light")
+  createdAt  DateTime @default(now())
+}
